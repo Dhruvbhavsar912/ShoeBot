@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shoebot/add_to_cart.dart';
 
 
-class CartScreen extends StatelessWidget {
-  static String id= "cart";
+class ProductScreen extends StatelessWidget {
+  static String id= "product";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,8 +14,8 @@ class CartScreen extends StatelessWidget {
         child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ProductCard(
-          productName: 'Nike Shoe',
-          productPrice: 49.99,
+          productName: "Air Max+ 2023 'Volt'",
+          productPrice: 499.99,
         ),
       ),
       ),
@@ -30,38 +31,47 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SingleChildScrollView(
+        child: Column(
         children: <Widget>[
           ListTile(
             title: Text(productName),
-            subtitle: Text('\$$productPrice'),
+            subtitle: Text('C \$$productPrice'),
           ),
           Image.asset('assets/shoe.PNG'), // Replace with your product image asset
-          ClipRRect(
+          SingleChildScrollView(
+            child: ClipRRect(
           borderRadius: BorderRadius.only(
           topLeft: Radius.circular(80.0),  // Adjust the radius as needed
           topRight: Radius.circular(80.0), // Adjust the radius as needed
           ),
           child:Card(
-            elevation: 2,
+            elevation: 10,
             color: Colors.white,
             child: SizedBox(
-            height: 200,
-            child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            height: 300,
+            width: 800,
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Text(
-                "Add Product details here",
+              Padding(
+              padding: const EdgeInsets.all(25.0),
+              child : Text(
+                "The Air Max+ 2013 is known for its distinctive and eye-catching design. The 'Volt' colorway features a bright neon yellow-green shade known as 'Volt,' which is a signature color for Nike. The shoe typically features a combination of synthetic materials and mesh on the upper for breathability and support. It includes Nike's Air Max technology in the sole, providing responsive cushioning and impact protection. The black accents and Nike Swoosh complement the vibrant Volt color, giving it a bold and sporty look.",
                 style: TextStyle(fontSize: 12,color: Colors.black),
               ),
-              Container(height: 16),
-              ElevatedButton(
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+    /*      ElevatedButton(
                 style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.yellow),
                 // Customize other properties as needed
                 ),
                 onPressed: () {
                 // Add your button click logic here
+                  Navigator.pushNamed(context, AddToCartScreen.id);
                 },
                 child: Text(
                 'Buy Now',
@@ -70,7 +80,7 @@ class ProductCard extends StatelessWidget {
                 fontSize: 16.0,       // Set text size
                     ),
                   ),
-                ),
+                ),*/
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.yellow),
@@ -78,6 +88,8 @@ class ProductCard extends StatelessWidget {
                 ),
                 onPressed: () {
                   // Add your button click logic here
+                  Navigator.pushNamed(context, AddToCartScreen.id);
+
                 },
                 child: Text(
                   'Add to cart',
@@ -87,13 +99,17 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
+                ],
+              ),
 
             ],
           ),
           ),
           ),
           ),
+          ),
         ],
+        ),
     );
   }
 }

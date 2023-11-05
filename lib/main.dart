@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shoebot/add_to_cart.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:shoebot/shopping_cart.dart';
+import 'package:shoebot/product_details.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,8 +15,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(), // Set the dark theme
          initialRoute: MyHomePage.id,
         routes: {
-            CartScreen.id: (context) => CartScreen(),
-      //    DetailsScreen.id : (context) => DetailsScreen(),
+          AddToCartScreen.id: (context) => AddToCartScreen(),
+          ProductScreen.id : (context) => ProductScreen(),
           MyHomePage.id : (context) => MyHomePage(),
         }
     );
@@ -116,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    Navigator.pushNamed(context, CartScreen.id);
+                    Navigator.pushNamed(context, ProductScreen.id);
                   },
                 ),
               ],
