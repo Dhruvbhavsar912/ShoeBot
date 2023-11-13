@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shoebot/payment.dart';
 
 class AddToCartScreen extends StatelessWidget {
   static String id = "cart";
@@ -21,6 +22,9 @@ class AddToCartScreen extends StatelessWidget {
               child: ElevatedButton(
               onPressed: () {
                 // Add your logic to proceed with the purchase
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PaymentPage()),
+                );
               },
               child: Text("Buy Now"),
             ),

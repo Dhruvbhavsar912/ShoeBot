@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shoebot/add_to_cart.dart';
+import 'package:shoebot/searchpage.dart';
+import 'package:shoebot/chatbot_page.dart';
+import 'package:shoebot/payment.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:shoebot/product_details.dart';
@@ -18,6 +21,8 @@ class MyApp extends StatelessWidget {
           AddToCartScreen.id: (context) => AddToCartScreen(),
           ProductScreen.id : (context) => ProductScreen(),
           MyHomePage.id : (context) => MyHomePage(),
+          PaymentPage.id : (context) => PaymentPage(),
+          MySearchApp.id : (context) => MySearchApp(),
         }
     );
   }
@@ -107,17 +112,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: InputDecoration(
                       labelText: "Ask me what you're looking for today!",
                     ),
+                    onChanged: (value) {
+                      setState(() {
+                        _text = value;
+                      });
+                    },
                   ),
-                  ),
-             //   onChanged: (value) {
-             //     setState(() {
-            //        _text = value;
-             //     });
-             //   },
+                ),
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    Navigator.pushNamed(context, ProductScreen.id);
+                    Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ChatBotScreen(_text),
+                    ),
+                    );
                   },
                 ),
               ],

@@ -9,6 +9,46 @@ class ProductScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Product Details'),
+        actions:<Widget>[
+          Stack(
+            children: [
+              // Add to Cart Icon
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddToCartScreen()),
+                  );
+                },
+              ),
+              // Cart Item Count
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    '1',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -37,6 +77,7 @@ class ProductCard extends StatelessWidget {
           ListTile(
             title: Text(productName),
             subtitle: Text('C \$$productPrice'),
+
           ),
           Image.asset('assets/shoe.PNG'), // Replace with your product image asset
           SingleChildScrollView(
@@ -88,8 +129,9 @@ class ProductCard extends StatelessWidget {
                 ),
                 onPressed: () {
                   // Add your button click logic here
-                  Navigator.pushNamed(context, AddToCartScreen.id);
-
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AddToCartScreen()),
+                  );
                 },
                 child: Text(
                   'Add to cart',
