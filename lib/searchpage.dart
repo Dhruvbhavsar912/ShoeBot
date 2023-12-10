@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:shoebot/add_to_cart.dart';
 import 'package:shoebot/product_details.dart';
 
-
 class Product {
   final String name;
   final String image;
   final double price;
+  final double rating;
+  final double discount;
 
-  Product({required this.name, required this.image, required this.price});
+  Product({
+    required this.name,
+    required this.image,
+    required this.price,
+    required this.rating,
+    required this.discount,
+  });
 }
 
 class MySearchApp extends StatelessWidget {
@@ -25,10 +32,10 @@ class MySearchApp extends StatelessWidget {
 
 class SearchPage extends StatelessWidget {
   final List<Product> products = [
-    Product(name: 'Product 1', image: 'assets/shoe.PNG', price: 19.99),
-    Product(name: 'Product 2', image: 'assets/shoe.PNG', price: 29.99),
-    Product(name: 'Product 3', image: 'assets/shoe.PNG', price: 49.99),
-    Product(name: 'Product 4', image: 'assets/shoe.PNG', price: 59.99),
+    Product(name: 'Product 1', image: 'assets/shoe.PNG', price: 19.99, rating: 4.5, discount: 10),
+    Product(name: 'Product 2', image: 'assets/shoe10.PNG', price: 29.99, rating: 3.8, discount: 5),
+    Product(name: 'Product 3', image: 'assets/shoe8.PNG', price: 49.99, rating: 4.2, discount: 15),
+    Product(name: 'Product 4', image: 'assets/shoe9.PNG', price: 59.99, rating: 4.0, discount: 8),
     // Add more products as needed
   ];
 
@@ -37,20 +44,19 @@ class SearchPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Search Page'),
-        actions:<Widget>[
+        actions: <Widget>[
           Stack(
             children: [
               // Add to Cart Icon
-              IconButton(
-                icon: Icon(Icons.shopping_cart),
-                onPressed: () {
-
-                  Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddToCartScreen()),
-                  );
-                  
-                },
-              ),
+              // IconButton(
+              //   icon: Icon(Icons.shopping_cart),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => AddToCartScreen()),
+              //     );
+              //   },
+              // ),
               // Cart Item Count
               Positioned(
                 right: 0,
@@ -109,11 +115,12 @@ class ProductCard extends StatelessWidget {
         print('Tapped on ${product.name}');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ProductScreen()),
+          MaterialPageRoute(builder: (context) => ProductScreen(product.name,product.price,product.rating,product.discount,product.image)),
         );
       },
       child: Card(
         elevation: 4.0,
+        color: Colors.white.withOpacity(0.8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -133,12 +140,39 @@ class ProductCard extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   SizedBox(height: 4.0),
-                  Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 14.0, color: Colors.green),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '\$${product.price.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.grey,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                      Text(
+                        '\$${calculateDiscountedPrice(product.price, product.discount).toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 14.0, color: Colors.green),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.0),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        color: Colors.yellow,
+                        size: 16.0,
+                      ),
+                      Text(
+                        '${product.rating}',
+                        style: TextStyle(fontSize: 12.0, color: Colors.black),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -147,5 +181,10 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  double calculateDiscountedPrice(double originalPrice, double discountPercentage) {
+    double discountedPrice = originalPrice - (originalPrice * (discountPercentage / 100));
+    return discountedPrice;
   }
 }

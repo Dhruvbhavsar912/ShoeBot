@@ -4,8 +4,15 @@ import 'package:shoebot/payment.dart';
 class AddToCartScreen extends StatelessWidget {
   static String id = "cart";
 
+  final double price,discount;
+  final String name, image;
+
+  AddToCartScreen(this.name, this.price, this.image,this.discount);
+
   @override
   Widget build(BuildContext context) {
+    double discountedPrice = price - (price * (discount / 100));
+    String dp = discountedPrice.toStringAsFixed(2);
     return MaterialApp(
       theme: ThemeData.dark(),
       home: Scaffold(
@@ -15,19 +22,41 @@ class AddToCartScreen extends StatelessWidget {
         body: Column(
           children: [
             Expanded(
-              child: CartItemList(),
+              child: CartItemList(
+                name: name,
+                price: price,
+                image: image,
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(10.0),
               child: ElevatedButton(
-              onPressed: () {
-                // Add your logic to proceed with the purchase
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PaymentPage()),
-                );
-              },
-              child: Text("Buy Now"),
-            ),
+                onPressed: () {
+                  // Add your logic to proceed with the purchase
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PaymentPage(dp)),
+                  );
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.green),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    "Buy Now:  " + "$dp",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -49,17 +78,29 @@ class CartItem {
 }
 
 class CartItemList extends StatefulWidget {
+  final double price;
+  final String name, image;
+
+  CartItemList({required this.name, required this.price, required this.image});
+
   @override
   _CartItemListState createState() => _CartItemListState();
 }
 
 class _CartItemListState extends State<CartItemList> {
-  List<CartItem> cartItems = [
-    CartItem(
-      productName: "Air Max+ 2023 'Volt'",
-      imageUrl: 'assets/shoe.PNG',
-    ),
-  ];
+  List<CartItem> cartItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize cartItems with the provided parameters
+    cartItems.add(
+      CartItem(
+        productName: widget.name,
+        imageUrl: widget.image,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

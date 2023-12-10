@@ -1,9 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:shoebot/add_to_cart.dart';
 import 'package:shoebot/searchpage.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:shoebot/product_details.dart';
 
 class ChatBotScreen extends StatefulWidget {
   static String id = "chatbot";
@@ -23,14 +23,15 @@ class ChatMessage {
   ChatMessage({required this.text, required this.isUser});
 }
 
-
 class _ChatBotState extends State<ChatBotScreen> {
   final TextEditingController _textController = TextEditingController();
   stt.SpeechToText _speech = stt.SpeechToText();
   String _text = '';
+  String apiUrl = "https://assistfunc2.azurewebsites.net/api/http_trigger?code=6YQLkzQmdX56vMxN8o4mY-kFLMriGdmDb8heltUeaRFQAzFuGoTFmQ==";
+
   bool _isListening = false;
-  final List<ChatMessage> messages = [
-  ];
+  final List<ChatMessage> messages = [];
+
   @override
   void initState() {
     super.initState();
@@ -53,18 +54,61 @@ class _ChatBotState extends State<ChatBotScreen> {
     }
   }
 
+  Future<void> sendDataToApi(String text) async {
+    String apiUrl = "https://assistfunc2.azurewebsites.net/api/http_trigger?code=6YQLkzQmdX56vMxN8o4mY-kFLMriGdmDb8heltUeaRFQAzFuGoTFmQ==";
+    Map<String, String> headers = {"Content-Type": "application/json"};
+    print("text" + text);
+    Map<String, dynamic> body = {"text": text};
+
+
+      try {
+        var response = await http.post(
+            Uri.parse(apiUrl), headers: headers, body: json.encode(body));
+
+
+        print(response.statusCode);
+        print (body);
+        if (response.statusCode == 200) {
+          dynamic responseBody = json.decode(response.body);
+
+          if (responseBody is List) {
+            if (responseBody.isNotEmpty) {
+              // Ensure that the first element is not null
+              if (responseBody[0] != null) {
+                String firstElement = responseBody[0].toString();
+                print("First Element of the List: $firstElement");
+                _addMessage(firstElement, false);
+              } else {
+                print("First element of the list is null");
+              }
+            } else {
+              print("Empty list received from the API");
+            }
+          } else {
+            print("Unexpected type for response body in the API response");
+          }
+        } else {
+          print("Error: ${response.statusCode}");
+        }
+      } catch (error) {
+        print("Exception: $error");
+      }
+    _textController.clear();
+  }
+
+
+
   @override
   void dispose() {
     _speech.stop();
     super.dispose();
   }
 
-
-
-  void _addMessage(String message,bool isUser) {
+  void _addMessage(String message, bool isUser) {
     setState(() {
       messages.add(ChatMessage(text: message, isUser: isUser));
-      _textController.clear(); // Clear the text field after sending the message
+       // Clear the text field after sending the message
+      //_textController.clear();
     });
   }
 
@@ -88,7 +132,12 @@ class _ChatBotState extends State<ChatBotScreen> {
             child: ListView.builder(
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                return ChatBubble(message: ChatMessage(text: messages[index].text, isUser: messages[index].isUser));
+                return ChatBubble(
+                  message: ChatMessage(
+                    text: messages[index].text,
+                    isUser: messages[index].isUser,
+                  ),
+                );
               },
             ),
           ),
@@ -97,68 +146,72 @@ class _ChatBotState extends State<ChatBotScreen> {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      labelText: "Ask me what you're looking for today!",
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          decoration: InputDecoration(
+                            labelText: "Ask me what you're looking for today!",
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () {
+                          // Handle sending the message
+                          sendDataToApi(_textController.text);
+                          _addMessage(_textController.text, true);
+
+                          if (messages.length >= 5) {
+                            Navigator.pushNamed(context, MySearchApp.id);
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    // Handle sending the message
-                    _addMessage(_textController.text, true);
-                    // Do something with the user message
-                    _addMessage("some output from api", false);
-
-                    if(messages.length>=5)
-                      {
-                        Navigator.pushNamed(context, MySearchApp.id);
-                      }
-                  },
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: AvatarGlow(
+                    animate: _isListening,
+                    glowColor: Colors.yellow,
+                    endRadius: 30.0,
+                    duration: const Duration(milliseconds: 2000),
+                    repeatPauseDuration: const Duration(milliseconds: 100),
+                    repeat: true,
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        if (_isListening) {
+                          _speech.stop();
+                          if(_text != ' ' || _text.length !=0) {
+                            print(_text);
+                            _addMessage(_text, true);
+                          }
+                        } else {
+                          _speech.listen(
+                            onResult: (result) {
+                              setState(() {
+                                _text = result.recognizedWords;
+                              });
+                            },
+                          );
+                        }
+                        setState(() {
+                          _isListening = !_isListening;
+                        });
+                      },
+                      backgroundColor: Colors.yellow,
+                      child: Icon(
+                        _isListening ? Icons.mic_none : Icons.mic,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AvatarGlow(
-            animate: _isListening,
-            glowColor: Colors.yellow,
-            endRadius: 75.0,
-            duration: const Duration(milliseconds: 2000),
-            repeatPauseDuration: const Duration(milliseconds: 100),
-            repeat: true,
-            child: FloatingActionButton(
-              onPressed: () {
-                if (_isListening) {
-                  _speech.stop();
-                  _addMessage(_text, true);
-                } else {
-                  _speech.listen(
-                    onResult: (result) {
-                      setState(() {
-                        _text = result.recognizedWords;
-                      });
-                    },
-                  );
-                }
-                setState(() {
-                  _isListening = !_isListening;
-                });
-              },
-              backgroundColor: Colors.yellow,
-              child: Icon(
-                _isListening ? Icons.mic_none : Icons.mic,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          SizedBox(width: 16),
         ],
       ),
     );
@@ -178,7 +231,7 @@ class ChatBubble extends StatelessWidget {
         margin: EdgeInsets.all(8.0),
         padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: message.isUser ?  Colors.blue :Colors.green,
+          color: message.isUser ? Colors.blue : Colors.green,
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Text(
